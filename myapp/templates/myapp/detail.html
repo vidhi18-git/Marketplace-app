@@ -1,0 +1,70 @@
+{% extends 'myapp/base.html' %} 
+{% block body %}
+<div class="flex p-10">
+  <div>
+    <img
+      src="https://media.istockphoto.com/id/2164022210/vector/three-no-comics-style-text-vintage-attention-message-retro-dangerous-poster.jpg?s=612x612&w=0&k=20&c=5FdZMwGrWBsAimwmkV8c5jp-wz0831yF1w7Fty93mk8="
+      alt="no image"
+    />
+  </div>
+  <div class="pl-10">
+    <div class="text-4xl mb-4">{{ product.name }}</div>
+    <div class="mb-4">{{ product.description }}</div>
+    <div class="mb-4 text-green-700 font-bold">${{ product.price }}</div>
+    <div>
+      <button
+        id="checkout-button"
+        class="bg-green-500 text-white px-4 py-2 rounded-sm"
+      >
+        Buy
+      </button>
+    </div>
+    <div id="myemail" hidden>{{ request.user.email }}</div>
+  </div>
+</div>
+<script src="https://js.stripe.com/v3/"></script>
+<script type="text/javascript">
+  var stripe = Stripe("{{ stripe_publishable_key }}");
+  var checkoutButton = document.getElementById("checkout-button");
+  
+  checkoutButton.addEventListener("click", function () {
+    console.log("Button clicked");
+    var email = document.getElementById("myemail").innerText.trim();
+
+    if (email.length == 0) {
+      alert("Please enter your email address");
+      return;
+    }
+
+    fetch("{% url 'api_checkout_session' id=product.id %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'  // Add CSRF token
+      },
+      body: JSON.stringify({ email: email })
+    })
+    .then(function (response) {
+      if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.error || 'Network response was not ok') });
+      }
+      return response.json();
+    })
+    .then(function (data) {
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      return stripe.redirectToCheckout({ sessionId: data.sessionId });
+    })
+    .then(function (result) {
+      if (result.error) {
+        alert(result.error.message);
+      }
+    })
+    .catch(function (error) {
+      console.error("Error:", error);
+      alert("Error: " + error.message);
+    });
+  });
+</script>
+{% endblock %}

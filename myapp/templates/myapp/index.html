@@ -1,0 +1,35 @@
+{% extends 'myapp/base.html' %}
+{% block body %}
+
+<div class="product-container flex">
+{% for product in products %}
+   <div class="product shadow-lg w-1/4 rounded-lg m-10">
+       <div class="product-image">
+         <img src="https://media.istockphoto.com/id/1055079680/vector/black-linear-photo-camera-like-no-image-available.jpg?s=612x612&w=0&k=20&c=P1DebpeMIAtXj_ZbVsKVvg-duuL0v9DlrOZUvPG6UJk=" alt="Product image">
+         <div class="p-5">
+            <!-- outer Div that contain name description price -->
+            <div class="font-bold">
+                <!-- Div For Product Name-->
+                {{product.name}}
+            </div>
+            <div>
+                <!-- Div For Product Description -->
+                 {{product.description}}
+            </div>
+            <div class="text-green-700 font-bold">
+                <!--Div For Price -->
+                ₹{{product.price}}
+            </div>
+            <div class="mt-5">
+                <!-- For View Detail button -->
+                 <a href="{% url 'detail' product.id %}" class="bg-pink-500 text-white px-4 py-2">View Details</a>
+            </div>
+         </div>
+       </div>
+
+   </div>
+
+{% endfor %} 
+</div>
+{% endblock %}
+   
